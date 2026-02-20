@@ -14,8 +14,15 @@ public class InventoryItem {
     @Column(name = "inventoryItemId")
     private Long id;
 
-    private Long facilityId;
-    private Long productId;
+
+    @ManyToOne
+    @JoinColumn(name = "facilityId")
+    private Facility facility;
+
+    @ManyToOne
+    @JoinColumn(name = "productId")
+    private Product product;
+
     private BigDecimal quantity;
     private String transactionUomId;
     private String lotId;
@@ -25,28 +32,10 @@ public class InventoryItem {
     private Timestamp transferredOn;
     private Timestamp verifiedBy;
 
-    public InventoryItem(Long id, Long facilityId, Long productId, BigDecimal quantity, Timestamp verifiedBy) {
+    public InventoryItem(Long id, BigDecimal quantity, Timestamp verifiedBy) {
         this.id = id;
-        this.facilityId = facilityId;
-        this.productId = productId;
         this.quantity = quantity;
         this.verifiedBy = verifiedBy;
-    }
-
-    public Long getFacilityId() {
-        return facilityId;
-    }
-
-    public void setFacilityId(Long facilityId) {
-        this.facilityId = facilityId;
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
     }
 
     public BigDecimal getQuantity() {
