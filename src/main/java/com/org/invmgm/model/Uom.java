@@ -1,5 +1,6 @@
 package com.org.invmgm.model;
 
+import com.org.invmgm.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -7,12 +8,16 @@ import jakarta.persistence.Id;
 import java.math.BigDecimal;
 
 @Entity
-public class Uom {
+public class Uom extends BaseEntity {
 
     @Id
-    @Column(name = "uomId", length = 20)
+    @Column(name = "uom_id", length = 20)
     private String id;
+
+    @Column(nullable = false)
     private BigDecimal conversion;
+
+    @Column(nullable = false)
     private String description;
 
     public Uom () {}

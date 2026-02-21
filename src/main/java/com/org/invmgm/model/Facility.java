@@ -1,13 +1,15 @@
 package com.org.invmgm.model;
 
+import com.org.invmgm.common.entity.BaseEntity;
 import jakarta.persistence.*;
 
 @Entity
-public class Facility {
+@Table(name = "facility")
+public class Facility extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "facility_seq")
     @SequenceGenerator(name = "facility_seq", sequenceName = "facility_sequence", initialValue = 10000, allocationSize = 1)
-    @Column(name = "facilityId")
+    @Column(name = "facility_id")
     private Long id;
     private String facilityName;
     private String description;

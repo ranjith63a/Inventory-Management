@@ -1,26 +1,27 @@
 package com.org.invmgm.model;
 
+import com.org.invmgm.common.entity.BaseEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
-public class InventoryItem {
+@Table(name = "inventory_item")
+public class InventoryItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inventoryItem_seq")
     @SequenceGenerator(name = "inventoryItem_seq", sequenceName ="inventoryItem_sequence", initialValue = 10000, allocationSize = 1)
-    @Column(name = "inventoryItemId")
+    @Column(name = "inventory_item_id")
     private Long id;
 
-
     @ManyToOne
-    @JoinColumn(name = "facilityId")
+    @JoinColumn(name = "facility_id", nullable = false)
     private Facility facility;
 
     @ManyToOne
-    @JoinColumn(name = "productId")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     private BigDecimal quantity;

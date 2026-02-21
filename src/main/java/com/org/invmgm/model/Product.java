@@ -1,13 +1,14 @@
 package com.org.invmgm.model;
 
+import com.org.invmgm.common.entity.BaseEntity;
 import jakarta.persistence.*;
 
 @Entity
-public class Product {
+public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_seq")
     @SequenceGenerator(name = "product_seq", sequenceName = "product_sequence", initialValue = 10000, allocationSize = 1)
-    @Column(name = "productId")
+    @Column(name = "product_id")
     private Long id;
     private String productCode;
     private String productName;
