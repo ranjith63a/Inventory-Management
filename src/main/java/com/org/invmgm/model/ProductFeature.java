@@ -20,6 +20,8 @@ public class ProductFeature extends BaseEntity {
         this.productFeatureValue = productFeatureValue;
     }
 
+    public ProductFeature() {}
+
     public Long getId() {
         return id;
     }
