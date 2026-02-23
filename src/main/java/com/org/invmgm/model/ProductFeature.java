@@ -3,6 +3,9 @@ package com.org.invmgm.model;
 import com.org.invmgm.common.entity.BaseEntity;
 import jakarta.persistence.*;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @Entity
 public class ProductFeature extends BaseEntity {
     @Id
@@ -12,12 +15,21 @@ public class ProductFeature extends BaseEntity {
     private Long id;
     private String productFeatureCode;
     private String productFeatureValue;
+    private LocalDateTime fromDate;
+    private LocalDateTime thruDate;
 
 
-    public ProductFeature(Long id, String productFeatureCode, String productFeatureValue) {
+    public ProductFeature(Long id, String productFeatureCode, String productFeatureValue, LocalDateTime fromDate, LocalDateTime thruDate) {
         this.id = id;
         this.productFeatureCode = productFeatureCode;
         this.productFeatureValue = productFeatureValue;
+        this.fromDate = fromDate;
+        this.thruDate = thruDate;
+    }
+
+    public ProductFeature(LocalDateTime fromDate, LocalDateTime thruDate) {
+        this.fromDate = fromDate;
+        this.thruDate = thruDate;
     }
 
     public ProductFeature() {}
@@ -40,5 +52,21 @@ public class ProductFeature extends BaseEntity {
 
     public void setProductFeatureCode(String productFeatureCode) {
         this.productFeatureCode = productFeatureCode;
+    }
+
+    public LocalDateTime getFromDate() {
+        return fromDate;
+    }
+
+    public void setFromDate(LocalDateTime fromDate) {
+        this.fromDate = fromDate;
+    }
+
+    public LocalDateTime getThruDate() {
+        return thruDate;
+    }
+
+    public void setThruDate(LocalDateTime thruDate) {
+        this.thruDate = thruDate;
     }
 }
