@@ -3,8 +3,14 @@ package com.org.invmgm.model;
 import com.org.invmgm.common.entity.BaseEntity;
 import com.org.invmgm.model.key.ProductFeatureAppliedKey;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 public class ProductFeatureApplied extends BaseEntity {
 
     @EmbeddedId
@@ -20,6 +26,9 @@ public class ProductFeatureApplied extends BaseEntity {
     @JoinColumn(name = "product_feature_id", nullable = false)  // PK column
     private ProductFeature productFeature;
 
+    private LocalDateTime fromDate;
+    private LocalDateTime thruDate;
+
     public ProductFeatureApplied() {}
 
     public ProductFeatureApplied(Product product, ProductFeature productFeature) {
@@ -29,5 +38,19 @@ public class ProductFeatureApplied extends BaseEntity {
                 product.getId(),
                 productFeature.getId()
         );
+    }
+    public ProductFeatureApplied(Product product, ProductFeature productFeature, LocalDateTime thruDate) {
+        this.product = product;
+        this.productFeature = productFeature;
+        this.thruDate = thruDate;
+        this.id = new ProductFeatureAppliedKey(
+                product.getId(),
+                productFeature.getId()
+        );
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        fromDate = LocalDateTime.now();
     }
 }

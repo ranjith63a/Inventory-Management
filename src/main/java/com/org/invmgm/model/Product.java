@@ -23,6 +23,8 @@ public class Product extends BaseEntity {
         this.isControlSubstance = isControlSubstance;
     }
 
+    public Product() {}
+
     public long getId() {
         return id;
     }
