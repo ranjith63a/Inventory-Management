@@ -53,11 +53,11 @@ public class Product extends BaseEntity {
         this.productCode = productCode;
     }
 
-    public Character getIsControllSubstance() {
+    public Character getIsControlSubstance() {
         return isControlSubstance;
     }
 
-    public void setIsControllSubstance(Character isControllSubstance) {
+    public void setIsControlSubstance(Character isControllSubstance) {
         this.isControlSubstance = isControllSubstance;
     }
 }

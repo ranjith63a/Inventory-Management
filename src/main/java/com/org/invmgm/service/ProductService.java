@@ -1,8 +1,9 @@
 package com.org.invmgm.service;
 
-import com.org.invmgm.dto.ProductDTO;
+import com.org.invmgm.dto.ProductRequest;
+import com.org.invmgm.dto.ProductResponse;
 
 public interface ProductService {
-    ProductDTO createProduct(ProductDTO request);
-    ProductDTO updateProduct(Long id, ProductDTO request);
+    ProductResponse createProduct(ProductRequest request);
+    ProductResponse updateProduct(Long id, ProductRequest request);
 }
