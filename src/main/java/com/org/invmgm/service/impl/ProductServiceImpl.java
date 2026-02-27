@@ -38,6 +38,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public ProductResponse createProduct(ProductRequest request) {
+        // Validate product feature id exists
+        if (request.getFeatureId() != null) {
+            throw new DataNotFoundException("Product Feature Id cannot be empty");
+        }
+
+        ProductFeature feature = proFeaRepo.findById(request.getFeatureId())
+                .orElseThrow(() -> new DataNotFoundException("Product Feature not found with id:" + request.getFeatureId()));
+
         Product pro = new Product();
         pro.setProductName(request.getProductName());
         pro.setProductCode(request.getProductCode());
@@ -45,12 +53,8 @@ public class ProductServiceImpl implements ProductService {
         pro.setIsControlSubstance(request.getIsControlSubstance());
         Product response = proRepo.save(pro);
 
-        if (request.getFeatureId() != null) {
-            ProductFeature feature = proFeaRepo.getReferenceById(request.getFeatureId());
-
-            ProductFeatureApplied applied = new ProductFeatureApplied(response, feature);
-            proFeaAppRepo.save(applied);
-        }
+        ProductFeatureApplied applied = new ProductFeatureApplied(response, feature, LocalDateTime.now());
+        proFeaAppRepo.save(applied);
 
         return responseMap(response);
     }
@@ -82,15 +86,20 @@ public class ProductServiceImpl implements ProductService {
         if (request.getFeatureId() != null) {
 
             // close existing feature
-            ProductFeatureApplied existing = proFeaAppRepo.findActiveByProductId(id);
+            List<ProductFeatureApplied> existing = proFeaAppRepo.findActiveByProductIds(id);
 
             if (existing != null) {
-                existing.setThruDate(LocalDateTime.now());
+                existing.get(0).setThruDate(LocalDateTime.now());
             }
 
-            ProductFeature feature = proFeaRepo.getReferenceById(request.getFeatureId());
+            assert existing != null;
+            proFeaAppRepo.save(existing.get(0));
 
-            ProductFeatureApplied applied = new ProductFeatureApplied(pro, feature);
+            // Validate product feature id exists
+            ProductFeature feature = proFeaRepo.findById(request.getFeatureId())
+                    .orElseThrow(() -> new DataNotFoundException("Product Feature not found with id:" + request.getFeatureId()));
+
+            ProductFeatureApplied applied = new ProductFeatureApplied(pro, feature, LocalDateTime.now(), LocalDateTime.now());
 
             proFeaAppRepo.save(applied);
         }
@@ -111,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
         product.setId(response.getId());
 
         // Fetch feature dynamically (if needed)
-        List<ProductFeatureApplied> applied =  proFeaAppRepo.findActiveByProductIdEquals(response.getId());
+        List<ProductFeatureApplied> applied =  proFeaAppRepo.findActiveByProductIds(response.getId());
         if (applied != null) {
             ProductFeatureResponse proFea = productFeatureService.getProductFeatureById(applied.get(0).getProductFeature().getId());
             product.setProductFeature(proFea);

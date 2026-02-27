@@ -1,8 +1,10 @@
 package com.org.invmgm.model.key;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.PrePersist;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Embeddable
@@ -10,10 +12,12 @@ public class ProductFeatureAppliedKey implements Serializable {
 
     private Long productId;
     private Long productFeatureId;
+    private LocalDateTime fromDate;
 
-    public ProductFeatureAppliedKey(Long productId, Long productFeatureId) {
+    public ProductFeatureAppliedKey(Long productId, Long productFeatureId, LocalDateTime fromDate) {
         this.productId = productId;
         this.productFeatureId = productFeatureId;
+        this.fromDate = fromDate;
     }
 
     public ProductFeatureAppliedKey () {}
@@ -29,6 +33,11 @@ public class ProductFeatureAppliedKey implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(productId, productFeatureId);
+        return Objects.hash(productId, productFeatureId, fromDate);
+    }
+
+    @PrePersist
+    protected void onCreateFromDate() {
+        this.fromDate = LocalDateTime.now();
     }
 }

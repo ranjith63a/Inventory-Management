@@ -26,31 +26,32 @@ public class ProductFeatureApplied extends BaseEntity {
     @JoinColumn(name = "product_feature_id", nullable = false)  // PK column
     private ProductFeature productFeature;
 
-    private LocalDateTime fromDate;
     private LocalDateTime thruDate;
 
     public ProductFeatureApplied() {}
 
-    public ProductFeatureApplied(Product product, ProductFeature productFeature) {
+    public ProductFeatureApplied(Product product, ProductFeature productFeature, LocalDateTime fromDate) {
         this.product = product;
         this.productFeature = productFeature;
         this.id = new ProductFeatureAppliedKey(
                 product.getId(),
-                productFeature.getId()
+                productFeature.getId(),
+                fromDate
         );
     }
-    public ProductFeatureApplied(Product product, ProductFeature productFeature, LocalDateTime thruDate) {
+    public ProductFeatureApplied(Product product, ProductFeature productFeature, LocalDateTime fromDate, LocalDateTime thruDate) {
         this.product = product;
         this.productFeature = productFeature;
         this.thruDate = thruDate;
         this.id = new ProductFeatureAppliedKey(
                 product.getId(),
-                productFeature.getId()
+                productFeature.getId(),
+                fromDate
         );
     }
 
-    @PrePersist
+    /*@PrePersist
     protected void onCreateFromDate() {
-        fromDate = LocalDateTime.now();
-    }
+        this.fromDate = LocalDateTime.now();
+    }*/
 }

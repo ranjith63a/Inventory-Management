@@ -11,6 +11,6 @@ public class ProductRequest {
     private String productName;
     private String productGroupName;
     private Character isControlSubstance;
-    @NotNull
+    @NotNull(message = "Product Feature Id cannot be empty")
     private Long featureId;
 }
