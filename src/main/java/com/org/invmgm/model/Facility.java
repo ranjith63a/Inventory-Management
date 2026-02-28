@@ -20,6 +20,8 @@ public class Facility extends BaseEntity {
         this.description = description;
     }
 
+    public Facility() { }
+
     public Long getId() {
         return id;
     }

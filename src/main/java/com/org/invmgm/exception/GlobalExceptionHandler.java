@@ -28,11 +28,11 @@ public class GlobalExceptionHandler {
     CONTENT_TOO_LARGE(413, HttpStatus.Series.CLIENT_ERROR, "Content Too Large")
 */
 
-    @ExceptionHandler(DataNotFoundException.class)
+    /*@ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<?> dataNotFound(DataNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
-
+*/
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
 
@@ -67,5 +67,14 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT.value(),ex.getMessage(),HttpStatus.CONFLICT.getReasonPhrase(), LocalDateTime.now(),request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotFoundValue(DataNotFoundException ex, HttpServletRequest request) {
+        // 404 status code
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.NOT_FOUND.value(),ex.getMessage(),HttpStatus.NOT_FOUND.getReasonPhrase(), LocalDateTime.now(),request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 }
