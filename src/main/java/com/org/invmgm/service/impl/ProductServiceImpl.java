@@ -12,15 +12,18 @@ import com.org.invmgm.repository.ProductFeatureRepository;
 import com.org.invmgm.repository.ProductRepository;
 import com.org.invmgm.service.ProductFeatureService;
 import com.org.invmgm.service.ProductService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Validated
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository proRepo;
@@ -38,10 +41,11 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public ProductResponse createProduct(ProductRequest request) {
-        // Validate product feature id exists
-        if (request.getFeatureId() != null) {
+        // Now we don't validate here, because we use @Valid at the controller
+        /*// Validate product feature id exists
+        if (request.getFeatureId() == null) {
             throw new DataNotFoundException("Product Feature Id cannot be empty");
-        }
+        }*/
 
         ProductFeature feature = proFeaRepo.findById(request.getFeatureId())
                 .orElseThrow(() -> new DataNotFoundException("Product Feature not found with id:" + request.getFeatureId()));
@@ -62,6 +66,12 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public ProductResponse updateProduct(Long id, ProductRequest request) {
+        // Now we don't validate here, because we use @Valid at the controller
+        /*// Validate product feature id exists
+        if (request.getFeatureId() == null) {
+            throw new DataNotFoundException("Product Feature Id cannot be empty");
+        }*/
+
         Product pro = proRepo.findById(id).orElseThrow(() -> new DataNotFoundException("Could not find the Product Id: " + id));
 
         if (request.getProductName() != null) {
@@ -99,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
             ProductFeature feature = proFeaRepo.findById(request.getFeatureId())
                     .orElseThrow(() -> new DataNotFoundException("Product Feature not found with id:" + request.getFeatureId()));
 
-            ProductFeatureApplied applied = new ProductFeatureApplied(pro, feature, LocalDateTime.now(), LocalDateTime.now());
+            ProductFeatureApplied applied = new ProductFeatureApplied(pro, feature, LocalDateTime.now());
 
             proFeaAppRepo.save(applied);
         }

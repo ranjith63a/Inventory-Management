@@ -26,7 +26,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> fidAll(@Valid @RequestParam(required = false) Long id, @RequestParam(required = false) String productName, Pageable pageable) {
+    public ResponseEntity<Page<ProductResponse>> fidAll(@RequestParam(required = false) Long id, @RequestParam(required = false) String productName, Pageable pageable) {
         Page<ProductResponse> productResponse = proSer.findAllProduct(id, productName, pageable);
         return ResponseEntity.ok(productResponse);
     }
@@ -38,7 +38,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ProductResponse> update(@PathVariable Long id, @RequestBody ProductRequest request) {
+    public ResponseEntity<ProductResponse> update(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         ProductResponse productResponse = proSer.updateProduct(id, request);
         return ResponseEntity.ok(productResponse);
     }

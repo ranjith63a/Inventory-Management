@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 public class ProductFeatureRequest {
 
-    @NotBlank
+    // This is validated before service method call
+    @NotBlank(message = "Product Code cannot be empty")
     private String featureCode;
     private String featureValue;
 }

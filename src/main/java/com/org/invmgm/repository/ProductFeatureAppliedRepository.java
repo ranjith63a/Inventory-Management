@@ -19,4 +19,11 @@ public interface ProductFeatureAppliedRepository extends JpaRepository<ProductFe
            AND (p.thruDate > CURRENT_TIMESTAMP OR p.thruDate IS NULL)
            """)
     List<ProductFeatureApplied> findActiveByProductIds(@Param("productId") Long productId);
+
+    @Query("""
+           SELECT pf
+           FROM ProductFeatureApplied pf
+           WHERE pf.productFeature.id = :productFeatureId
+           """)
+    List<ProductFeatureApplied> findByProductFeatureIds(@Param("productFeatureId") Long productFeatureId);
 }

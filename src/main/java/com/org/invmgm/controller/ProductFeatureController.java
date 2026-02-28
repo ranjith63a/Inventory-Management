@@ -26,7 +26,7 @@ public class ProductFeatureController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ProductFeatureResponse> updateProductFeature(@PathVariable Long id, @RequestBody ProductFeatureRequest request) {
+    public ResponseEntity<ProductFeatureResponse> updateProductFeature(@PathVariable Long id, @Valid @RequestBody ProductFeatureRequest request) {
         ProductFeatureResponse response = service.updateProductFeature(id, request);
         return ResponseEntity.ok(response);
     }

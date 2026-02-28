@@ -4,7 +4,10 @@ package com.org.invmgm.service.impl;
 import com.org.invmgm.dto.ProductFeatureRequest;
 import com.org.invmgm.dto.ProductFeatureResponse;
 import com.org.invmgm.exception.DataNotFoundException;
+import com.org.invmgm.exception.DeleteNotAllowedException;
 import com.org.invmgm.model.ProductFeature;
+import com.org.invmgm.model.ProductFeatureApplied;
+import com.org.invmgm.repository.ProductFeatureAppliedRepository;
 import com.org.invmgm.repository.ProductFeatureRepository;
 import com.org.invmgm.service.ProductFeatureService;
 import org.springframework.data.domain.Page;
@@ -12,15 +15,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Service
 public class ProductFeatureServiceImpl implements ProductFeatureService {
 
     private final ProductFeatureRepository proFeaRepo;
+    private final ProductFeatureAppliedRepository proFeaAppRepo;
 
-    public ProductFeatureServiceImpl(ProductFeatureRepository proFeaRepo) {
+    public ProductFeatureServiceImpl(ProductFeatureRepository proFeaRepo, ProductFeatureAppliedRepository proFeaAppRepo) {
         this.proFeaRepo = proFeaRepo;
+        this.proFeaAppRepo = proFeaAppRepo;
     }
 
     @Override
@@ -86,6 +92,13 @@ public class ProductFeatureServiceImpl implements ProductFeatureService {
         ProductFeature productFeature = proFeaRepo.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Product Feature not found with id: " + id));
 
-        proFeaRepo.delete(productFeature);
+        List<ProductFeatureApplied> productFeatureAppliedList = proFeaAppRepo.findByProductFeatureIds(productFeature.getId());
+        if (productFeatureAppliedList.isEmpty()) {
+            proFeaRepo.delete(productFeature);
+        } else {
+            throw new DeleteNotAllowedException("Cannot delete product feature because it is already used in some Products or expired");
+        }
+
+
     }
 }
