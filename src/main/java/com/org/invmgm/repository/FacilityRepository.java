@@ -1,6 +1,5 @@
 package com.org.invmgm.repository;
 
-import com.org.invmgm.dto.FacilityResponse;
 import com.org.invmgm.model.Facility;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

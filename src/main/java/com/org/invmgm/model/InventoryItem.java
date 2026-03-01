@@ -2,12 +2,17 @@ package com.org.invmgm.model;
 
 import com.org.invmgm.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "inventory_item")
+@Getter
+@Setter
 public class InventoryItem extends BaseEntity {
 
     @Id
@@ -25,81 +30,24 @@ public class InventoryItem extends BaseEntity {
     private Product product;
 
     private BigDecimal quantity;
-    private String transactionUomId;
+
+    @ManyToOne
+    @JoinColumn(name = "transaction_uom_id", referencedColumnName = "uom_id", nullable = false)
+    private Uom uom;
+
+    @ManyToOne
+    @JoinColumn(name = "inventory_item_type_id", referencedColumnName = "enum_id", nullable = false)
+    private Enumeration enumeration;
+
+    @ManyToOne
+    @JoinColumn(name = "status_id", referencedColumnName = "status_item_id", nullable = false)
+    private StatusItem statusItem;
+
     private String lotId;
     private String comments;
     private String vendorId;
-    private Timestamp receivedOn;
-    private Timestamp transferredOn;
-    private Timestamp verifiedBy;
+    private LocalDateTime receivedOn;
+    private LocalDateTime transferredOn;
+    private LocalDateTime verifiedOn;
 
-    public InventoryItem(Long id, BigDecimal quantity, Timestamp verifiedBy) {
-        this.id = id;
-        this.quantity = quantity;
-        this.verifiedBy = verifiedBy;
-    }
-
-    public BigDecimal getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(BigDecimal quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getTransactionUomId() {
-        return transactionUomId;
-    }
-
-    public void setTransactionUomId(String transactionUomId) {
-        this.transactionUomId = transactionUomId;
-    }
-
-    public String getLotId() {
-        return lotId;
-    }
-
-    public void setLotId(String lotId) {
-        this.lotId = lotId;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public void setComments(String comments) {
-        this.comments = comments;
-    }
-
-    public String getVendorId() {
-        return vendorId;
-    }
-
-    public void setVendorId(String ventorId) {
-        this.vendorId = ventorId;
-    }
-
-    public Timestamp getReceivedOn() {
-        return receivedOn;
-    }
-
-    public void setReceivedOn(Timestamp receivedOn) {
-        this.receivedOn = receivedOn;
-    }
-
-    public Timestamp getTransferredOn() {
-        return transferredOn;
-    }
-
-    public void setTransferredOn(Timestamp transferredOn) {
-        this.transferredOn = transferredOn;
-    }
-
-    public Timestamp getVerifiedBy() {
-        return verifiedBy;
-    }
-
-    public void setVerifiedBy(Timestamp verifiedBy) {
-        this.verifiedBy = verifiedBy;
-    }
 }
