@@ -121,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
         return responseMap(product);
     }
 
-    private ProductResponse responseMap(Product response) {
+    protected ProductResponse responseMap(Product response) {
         ProductResponse product = new ProductResponse();
         product.setProductCode(response.getProductCode());
         product.setProductName(response.getProductName());

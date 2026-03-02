@@ -21,10 +21,10 @@ public class InventoryItemCreateRequest {
     private BigDecimal quantity;
     @NotBlank
     private String transactionUomId;
-    @NotBlank
-    private String inventoryItemTypeId;
-    @NotBlank
-    private String statusId;
+    //@NotBlank
+    //private String inventoryItemTypeId;
+    //@NotBlank
+    //private String statusId;
     private String lotId;
     private String comments;
     private String vendorId;

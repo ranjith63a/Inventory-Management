@@ -35,6 +35,6 @@ public class InventoryItemDetail extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "transaction_type_id",  referencedColumnName = "enum_id",  nullable = false)
-    private Enumeration enumeration;
+    private Enumeration transactionTypeId;
 
 }

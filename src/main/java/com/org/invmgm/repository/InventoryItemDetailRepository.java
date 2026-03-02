@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface InventoryItemDetailRepository extends JpaRepository<InventoryItemDetail, Long> {
 
-    List<InventoryItemDetail> findByIdOrderByTransactionDateDesc(InventoryItem item);
+    List<InventoryItemDetail> findTopByItemOrderByTransactionDateDesc(InventoryItem item);
 }

@@ -37,7 +37,7 @@ public class InventoryItem extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "inventory_item_type_id", referencedColumnName = "enum_id", nullable = false)
-    private Enumeration enumeration;
+    private Enumeration inventoryItemType;
 
     @ManyToOne
     @JoinColumn(name = "status_id", referencedColumnName = "status_item_id", nullable = false)
