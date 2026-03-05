@@ -19,7 +19,7 @@ import java.util.Objects;
 public class UserSecurityGroupAppliedId implements Serializable {
 
     private Long userLoginId;
-    private Long groupId;
+    private String groupId;
     private LocalDateTime fromDate;
 
     @Override
