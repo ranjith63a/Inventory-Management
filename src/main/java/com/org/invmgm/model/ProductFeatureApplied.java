@@ -50,8 +50,11 @@ public class ProductFeatureApplied extends BaseEntity {
         );
     }
 
-    /*@PrePersist
-    protected void onCreateFromDate() {
-        this.fromDate = LocalDateTime.now();
-    }*/
+    @PrePersist
+    public void prePersist() {
+        if (id.getFromDate() == null) {
+            id.setFromDate(LocalDateTime.now());
+        }
+    }
+
 }

@@ -12,6 +12,7 @@ import com.org.invmgm.repository.ProductFeatureRepository;
 import com.org.invmgm.repository.ProductRepository;
 import com.org.invmgm.service.ProductFeatureService;
 import com.org.invmgm.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -25,9 +26,16 @@ import java.util.List;
 @Validated
 public class ProductServiceImpl implements ProductService {
 
+    @Autowired
     private final ProductRepository proRepo;
+
+    @Autowired
     private final ProductFeatureRepository proFeaRepo;
+
+    @Autowired
     private final ProductFeatureAppliedRepository proFeaAppRepo;
+
+    @Autowired
     private final ProductFeatureService productFeatureService;
 
     public ProductServiceImpl(ProductRepository proRepo, ProductFeatureRepository proFeaRepo, ProductFeatureAppliedRepository proFeaAppRepo, ProductFeatureService productFeatureService) {
@@ -121,7 +129,7 @@ public class ProductServiceImpl implements ProductService {
         return responseMap(product);
     }
 
-    protected ProductResponse responseMap(Product response) {
+    public ProductResponse responseMap(Product response) {
         ProductResponse product = new ProductResponse();
         product.setProductCode(response.getProductCode());
         product.setProductName(response.getProductName());

@@ -4,8 +4,10 @@ import com.org.invmgm.dto.*;
 import com.org.invmgm.exception.DataNotFoundException;
 import com.org.invmgm.model.*;
 import com.org.invmgm.repository.*;
+import com.org.invmgm.service.FacilityService;
 import com.org.invmgm.service.InventoryItemService;
 import com.org.invmgm.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Validated
@@ -34,10 +37,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final EnumerationRepository enumRepo;
 
     // Service
-    private final ProductServiceImpl proSer;
-    private final FacilityServiceImpl fcSer;
+    @Autowired
+    private final ProductService proSer;
+    private final FacilityService fcSer;
 
-    public InventoryItemServiceImpl(FacilityRepository fcRepo, ProductRepository proRepo, InventoryItemRepository invRepo, InventoryItemDetailRepository invDtlRepo, InventoryItemTransferRepository invTransRepo, UomRepository uomRepo, StatusItemRepository stsRepo, EnumerationRepository enumRepo, ProductServiceImpl proSer, FacilityServiceImpl fcSer) {
+    public InventoryItemServiceImpl(FacilityRepository fcRepo, ProductRepository proRepo, InventoryItemRepository invRepo, InventoryItemDetailRepository invDtlRepo, InventoryItemTransferRepository invTransRepo, UomRepository uomRepo, StatusItemRepository stsRepo, EnumerationRepository enumRepo, ProductService proSer, FacilityService fcSer) {
         this.fcRepo = fcRepo;
         this.proRepo = proRepo;
         this.invRepo = invRepo;
@@ -72,21 +76,33 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         InventoryItem result = invRepo.save(newItem);
 
         // create inventory detail
-        createInventoryItemDetail(result.getId(), null, request.getQuantity(), request.getTransactionUomId(),"INV_PURCHASED");
+        createInventoryItemDetail(newItem, null, request.getQuantity(), request.getTransactionUomId(),"INV_PURCHASED");
 
         return responseMap(result);
     }
 
     @Override
+    @Transactional
     public InventoryItemResponse updateInventoryItem(Long id, InventoryItemUpdateRequest request) {
-        return null;
+        InventoryItem item = invRepo.findById(id).orElseThrow(()-> new DataNotFoundException("Inventory Item Id does not exists : " + id));
+
+        if (request.getLotId() != null) {
+            item.setLotId(request.getLotId());
+        }
+        if (request.getComments() != null) {
+            item.setComments(request.getComments());
+        }
+        if (request.getVendorId() != null) {
+            item.setVendorId(request.getVendorId());
+        }
+        return responseMap(item);
     }
 
-    private void createInventoryItemDetail(Long inventoryItemId, Long inventoryTransferId, BigDecimal quantity,
+    private void createInventoryItemDetail(InventoryItem item, Long inventoryTransferId, BigDecimal quantity,
                                            String transactionUomId, String transactionTypeId) {
 
         InventoryItemDetail detail = new InventoryItemDetail();
-        detail.setItem(invRepo.findById(inventoryItemId).orElseThrow(() -> new DataNotFoundException("Inventory Item does exists Id : " + inventoryItemId)));
+        detail.setItem(invRepo.findById(item.getId()).orElseThrow(() -> new DataNotFoundException("Inventory Item does exists Id : " + item.getId())));
         detail.setTransactionTypeId(enumRepo.findById(transactionTypeId).orElseThrow(() -> new DataNotFoundException("Enumeration does not exists : " + transactionTypeId)));
         if (inventoryTransferId != null) {
             detail.setTransfer(invTransRepo.findById(inventoryTransferId).orElseThrow(() -> new DataNotFoundException("Transfer does not exists : " + inventoryTransferId)));
@@ -95,9 +111,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         detail.setTransactionUomId(transactionUomId);
         detail.setTransactionDate(LocalDateTime.now());
 
-        List<InventoryItemDetail> itemDetailList = invDtlRepo.findTopByItemOrderByTransactionDateDesc(invRepo.findById(inventoryItemId).orElseThrow(() -> new DataNotFoundException("Inventory Item does exists Id : " + inventoryItemId)));
-        if (!itemDetailList.isEmpty()) {
-            detail.setBalanceQuantity(itemDetailList.get(0).getBalanceQuantity().subtract(convertStoredQuantity(quantity, transactionUomId)));
+        Optional<InventoryItemDetail> itemDetailList = invDtlRepo.findTopByItemOrderByTransactionDateDesc(invRepo.findById(item.getId()).orElseThrow(() -> new DataNotFoundException("Inventory Item does exists Id : " + item.getId())));
+        if (itemDetailList.isPresent()) {
+            detail.setBalanceQuantity(itemDetailList.get().getBalanceQuantity().subtract(convertStoredQuantity(quantity, transactionUomId)));
         } else {
             detail.setBalanceQuantity(convertStoredQuantity(quantity, transactionUomId));
         }
@@ -111,7 +127,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
     private BigDecimal convertDisplayQuantity(BigDecimal quantity, String transactionUomId) {
         Uom uom = uomRepo.findById(transactionUomId).orElseThrow(() -> new DataNotFoundException("Uom does not exists Id : " + transactionUomId));
-        return uom.getConversion().divide(quantity, RoundingMode.HALF_UP);
+        return quantity.divide(uom.getConversion(), RoundingMode.HALF_UP);
     }
     private Map<String, Object> validateInventoryItem(Long facilityId, Long productId, String transactionUomId, String statusId, String inventoryTypeId) {
 
@@ -147,6 +163,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         response.setInventoryItemTypeId(item.getInventoryItemType().getId());
         response.setQuantity(convertDisplayQuantity(item.getQuantity(), item.getUom().getId()));
         response.setTransactionUomId(item.getUom().getId());
+        response.setComments(item.getComments());
+        response.setLotId(item.getLotId());
+        response.setVendorId(item.getVendorId());
         return response;
     }
 

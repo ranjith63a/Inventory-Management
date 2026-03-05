@@ -81,7 +81,7 @@ public class FacilityServiceImpl implements FacilityService {
         return response.map(this::responseMap);
     }
 
-    protected FacilityResponse responseMap(Facility facility) {
+    public FacilityResponse responseMap(Facility facility) {
         FacilityResponse response = new FacilityResponse();
         response.setId(facility.getId());
         response.setFacilityName(facility.getFacilityName());

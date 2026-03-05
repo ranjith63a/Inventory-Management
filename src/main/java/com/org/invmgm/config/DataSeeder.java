@@ -3,6 +3,7 @@ package com.org.invmgm.config;
 import com.org.invmgm.exception.DataNotFoundException;
 import com.org.invmgm.model.*;
 import com.org.invmgm.repository.*;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -12,22 +13,22 @@ import java.math.BigDecimal;
 
 @Order(1)
 @Component
+@AllArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
+    @Autowired
     private final UomRepository uomRepo;
     @Autowired
     private final EnumerationTypeRepository enumTypeRepo;
+    @Autowired
     private final EnumerationRepository enumRepo;
+    @Autowired
     private final StatusItemRepository stsRepo;
+    @Autowired
     private final StatusItemTypeRepository stsTypeRepo;
+    @Autowired
+    private final SecurityGroupRepository secGroRepo;
 
-    public DataSeeder(UomRepository uomRepo, EnumerationTypeRepository enumTypeRepo, EnumerationRepository enumRepo, StatusItemRepository stsRepo, StatusItemTypeRepository stsTypeRepo) {
-        this.uomRepo = uomRepo;
-        this.enumTypeRepo = enumTypeRepo;
-        this.enumRepo = enumRepo;
-        this.stsRepo = stsRepo;
-        this.stsTypeRepo = stsTypeRepo;
-    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -36,6 +37,7 @@ public class DataSeeder implements CommandLineRunner {
         seedEnumeration();
         seedStatusItemType();
         seedStatusItem();
+        seedSecurityGroup();
     }
 
     // Seed Uom Data
@@ -130,5 +132,16 @@ public class DataSeeder implements CommandLineRunner {
             return e;
         });
         enumRepo.save(enumeration);
+    }
+
+    // Seed Uom Data
+    private void seedSecurityGroup () {
+        validateAndSeedSecurityGroup("ADMIN", "Admin");
+        validateAndSeedSecurityGroup("USER", "Normal User");
+    }
+
+    private void validateAndSeedSecurityGroup (String id, String groupName) {
+        SecurityGroup group = secGroRepo.findById(id).orElse(new SecurityGroup(id, groupName));
+        secGroRepo.save(group);
     }
 }

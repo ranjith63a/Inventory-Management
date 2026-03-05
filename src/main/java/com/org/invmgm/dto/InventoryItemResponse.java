@@ -1,7 +1,5 @@
 package com.org.invmgm.dto;
 
-import com.org.invmgm.model.Facility;
-import com.org.invmgm.model.Product;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +15,9 @@ public class InventoryItemResponse {
     private String inventoryItemTypeId;
     private BigDecimal quantity;
     private String transactionUomId;
+    private String vendorId;
+    private String comments;
+    private String lotId;
 
     public InventoryItemResponse() {
     }

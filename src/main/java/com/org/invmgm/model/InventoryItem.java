@@ -1,6 +1,7 @@
 package com.org.invmgm.model;
 
 import com.org.invmgm.common.entity.BaseEntity;
+import com.org.invmgm.dto.InventoryItemCreateRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

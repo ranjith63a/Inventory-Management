@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 public class InventoryItemUpdateRequest {
 
-    @NotNull
-    private Long id;
     private String lotId;
     private String comments;
     private String vendorId;
