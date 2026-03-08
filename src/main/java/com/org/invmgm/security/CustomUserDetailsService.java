@@ -5,7 +5,6 @@ import com.org.invmgm.model.UserSecurityGroup;
 import com.org.invmgm.repository.UserLoginRepository;
 import com.org.invmgm.repository.UserSecurityGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,7 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collector;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -27,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
-        UserLogin user = userRepository.findByUsername(username)
+        UserLogin user = userRepository.findByUsernameEquals(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found"));
 

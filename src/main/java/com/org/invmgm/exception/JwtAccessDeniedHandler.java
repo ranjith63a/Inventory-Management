@@ -1,0 +1,38 @@
+package com.org.invmgm.exception;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+@Component
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
+
+    @Override
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException {
+
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+
+        ApiErrorResponse error = new ApiErrorResponse(
+                403,
+                "Forbidden",
+                "Access denied: You don't have permission to access this resource",
+                LocalDateTime.now(),
+                request.getRequestURI()
+        );
+
+        new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .writeValue(response.getOutputStream(), error);
+    }
+}

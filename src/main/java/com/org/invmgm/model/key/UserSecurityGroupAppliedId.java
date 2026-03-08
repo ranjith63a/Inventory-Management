@@ -13,7 +13,6 @@ import java.util.Objects;
 
 @Embeddable
 @AllArgsConstructor
-@RequiredArgsConstructor
 @Getter
 @Setter
 public class UserSecurityGroupAppliedId implements Serializable {
@@ -21,6 +20,8 @@ public class UserSecurityGroupAppliedId implements Serializable {
     private Long userLoginId;
     private String groupId;
     private LocalDateTime fromDate;
+
+    public UserSecurityGroupAppliedId() {}
 
     @Override
     public boolean equals(Object o) {

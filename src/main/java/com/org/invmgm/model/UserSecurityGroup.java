@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class UserSecurityGroup extends BaseEntity {
 
     @EmbeddedId
-    private UserSecurityGroupAppliedId id;
+    private UserSecurityGroupAppliedId id = new UserSecurityGroupAppliedId();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userLoginId")
