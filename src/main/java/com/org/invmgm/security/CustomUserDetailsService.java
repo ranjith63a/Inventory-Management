@@ -1,5 +1,6 @@
 package com.org.invmgm.security;
 
+import com.org.invmgm.exception.DataNotFoundException;
 import com.org.invmgm.model.UserLogin;
 import com.org.invmgm.model.UserSecurityGroup;
 import com.org.invmgm.repository.UserLoginRepository;
@@ -27,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         UserLogin user = userRepository.findByUsernameEquals(username)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found"));
+                        new DataNotFoundException("User not found"));
 
         List<UserSecurityGroup> securityGroupList = securityGroupRepository.findActiveGroupsByUserId(user.getId());
 

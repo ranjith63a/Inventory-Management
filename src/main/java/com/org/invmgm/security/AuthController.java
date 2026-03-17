@@ -45,11 +45,11 @@ public class AuthController {
 
         return AuthResponse.builder()
                 .status(201)
-                .message("Registration successful")
+                .message("Login successful")
                 .accessToken(token)
                 .tokenType("Bearer")
                 .expiresIn(expiry)
-                .username(request.getUsername())
+                .username(user.getUsername())
                 .build();
     }
 }

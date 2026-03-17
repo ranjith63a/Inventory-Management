@@ -14,6 +14,7 @@ public class AuthResponse {
     private int status;
     private String message;
     private String accessToken;
+    @Builder.Default
     private String tokenType = "Bearer";
     private long expiresIn;        // seconds
     private String username;
