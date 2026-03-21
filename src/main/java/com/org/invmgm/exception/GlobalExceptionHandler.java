@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
 
-        String message = ex.getBindingResult().getFieldError().getDefaultMessage();
+        String message = Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage();
 
         return ResponseEntity.badRequest().body(message);
     }
