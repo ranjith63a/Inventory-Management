@@ -5,6 +5,9 @@ import com.org.invmgm.dto.UserLoginResponse;
 import com.org.invmgm.service.impl.UserLoginServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,5 +40,16 @@ public class UserLoginController {
     ResponseEntity<UserLoginResponse> getUserById(@PathVariable Long id, @RequestBody UserLoginRequest request) {
         UserLoginResponse response = useSer.updateUser(id, request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/allUser")
+    ResponseEntity<Page<UserLoginResponse>> findAllUser(Pageable pageable) {
+        Page<UserLoginResponse> response = useSer.findAllUser(pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    void deleteUser(Long id) {
+        useSer.deleteUser(id);
     }
 }

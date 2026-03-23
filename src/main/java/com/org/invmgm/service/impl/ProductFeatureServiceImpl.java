@@ -51,12 +51,12 @@ public class ProductFeatureServiceImpl implements ProductFeatureService {
 
     @Override
     public Page<ProductFeatureResponse> findAllProductFeature(String productFeatureCode, Pageable pageable) {
-        Page<ProductFeature> page;
-        if (productFeatureCode != null && !productFeatureCode.isBlank()) {
-            page = proFeaRepo.findByProductFeatureCodeContainingIgnoreCase(productFeatureCode, pageable);
-        } else {
-            page = proFeaRepo.findAll(pageable);
-        }
+
+        Page<ProductFeature> page =
+                (productFeatureCode != null && !productFeatureCode.isBlank())
+                        ? proFeaRepo.findByProductFeatureCodeContainingIgnoreCase(productFeatureCode, pageable)
+                        : proFeaRepo.findAll(pageable);
+
         return page.map(this::responseMap);
     }
 

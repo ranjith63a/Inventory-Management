@@ -13,10 +13,17 @@ import com.org.invmgm.service.UserLoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -87,6 +94,7 @@ public class UserLoginServiceImpl implements UserLoginService {
             key = "'username:' + #username",   //  prefix avoids key collision with numeric IDs
             unless = "#result == null"
     )
+    @Override
     public UserLoginResponse getUserByUsername(String username) {
         log.debug("Cache MISS — loading user '{}' from DB", username);
         return userRepo.findByUsernameEquals(username)
@@ -108,30 +116,91 @@ public class UserLoginServiceImpl implements UserLoginService {
                     @CacheEvict(cacheNames = "users", key = "'all'")          //  evict list cache
             }
     )
+
+    @Override
     public UserLoginResponse updateUser(Long id, UserLoginRequest request) {
         log.debug("Updating user id={}", id);
         UserLogin existing = userRepo.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("User not found: " + id));
 
+        if (request.getSecurityGroupId() != null) {
+
+            SecurityGroup group = grpRepo.findById(request.getSecurityGroupId())
+                    .orElseThrow(() -> new DataNotFoundException(
+                            "Security group does not exist: " + request.getSecurityGroupId()));
+
+            List<UserSecurityGroup> activeGroups =
+                    usrScuRepo.findActiveGroupsByUserId(existing.getId());
+
+            if (!activeGroups.isEmpty()) {
+
+                UserSecurityGroup current = activeGroups.get(0);
+
+                if (!current.getGroup().getId().equals(request.getSecurityGroupId())) {
+
+                    log.debug("Existing Security group: {}", current.getGroup().getId());
+
+                    // close existing
+                    current.setThruDate(LocalDateTime.now());
+                    usrScuRepo.save(current);
+
+                    // add new
+                    UserSecurityGroup newGroup = new UserSecurityGroup();
+                    newGroup.setUser(existing);
+                    newGroup.setGroup(group);
+
+                    usrScuRepo.save(newGroup);
+                } else {
+                    log.debug("Already same Security group: {}", current.getGroup().getId());
+                }
+
+            } else {
+
+                log.debug("Adding new Security group: {}", request.getSecurityGroupId());
+
+                UserSecurityGroup newGroup = new UserSecurityGroup();
+                newGroup.setUser(existing);
+                newGroup.setGroup(group);
+
+                usrScuRepo.save(newGroup);
+            }
+        }
+
         existing.setEmail(request.getEmailAddress());
         // Note: username and password changes need extra care in real systems
         UserLogin saved = userRepo.save(existing);
 
+
         log.info("User updated: id={}", saved.getId());
+
         return toResponse(saved);
     }
 
+    @Override
+    public Page<UserLoginResponse> findAllUser(Pageable pageable) {
+        Page<UserLogin> page = userRepo.findAll(pageable);
+        return page.map(this::responseMap);
+    }
     // ─────────────────────────────────────────────────────────
     //  DELETE — evict all related cache entries
     // ─────────────────────────────────────────────────────────
 
+    @Override
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = "users", key = "#id"),                          //  evict by ID
             @CacheEvict(cacheNames = "users", key = "'username:' + #username"),      //  evict by username
             @CacheEvict(cacheNames = "users", key = "'all'")                         //  evict list
     })
-    public void deleteUser(Long id, String username) {
+    public void deleteUser(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            throw new AccessDeniedException("Only ADMIN can delete users");
+        }
+
         log.debug("Deleting user id={}", id);
         userRepo.deleteById(id);
         log.info("User deleted and cache evicted: id={}", id);
