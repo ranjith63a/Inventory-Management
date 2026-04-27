@@ -62,6 +62,7 @@ public class DataSeeder implements CommandLineRunner {
     private void seedEnumerationType () {
         validateAndSeedEnumerationType("INV_TYPE", "Inventory Received Type");
         validateAndSeedEnumerationType("INV_DTL_TR_TYPE", "Inventory Item Detail Transaction Type");
+        validateAndSeedEnumerationType("INV_TRANS_REASON", "Inventory Transfer Reason");
     }
 
     private void validateAndSeedEnumerationType (String id, String description) {
@@ -79,6 +80,11 @@ public class DataSeeder implements CommandLineRunner {
         validateAndSeedEnumeration("INV_PURCHASED", "INV_PURCHASED", "Purchased", 1,"INV_DTL_TR_TYPE");
         validateAndSeedEnumeration("INV_TRANSFERRED", "INV_TRANSFERRED", "Transferred", 2,"INV_DTL_TR_TYPE");
         validateAndSeedEnumeration("INV_SALE", "INV_SALE", "Sale", 3,"INV_DTL_TR_TYPE");
+
+        // inventory Transfer enum
+        validateAndSeedEnumeration("INV_TRNS_SALE", "INV_TRNS_SALE", "Sale", 1,"INV_TRANS_REASON");
+        validateAndSeedEnumeration("INV_TRNS_DESTR", "INV_TRNS_DESTR", "Destruction", 2,"INV_TRANS_REASON");
+        validateAndSeedEnumeration("INV_SAMPLE", "INV_SAMPLE", "Sample", 3,"INV_TRANS_REASON");
     }
 
     // Validate Status Item Type Data

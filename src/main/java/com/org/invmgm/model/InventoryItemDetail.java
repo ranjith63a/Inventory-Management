@@ -26,7 +26,7 @@ public class InventoryItemDetail extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "inventory_item_transfer_id")
-    private InventoryItemTransfer transfer;
+    private InventoryTransfer transfer;
 
     private BigDecimal quantity;
     private String transactionUomId;

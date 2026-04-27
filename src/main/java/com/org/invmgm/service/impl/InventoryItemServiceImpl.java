@@ -31,27 +31,30 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final ProductRepository proRepo;
     private final InventoryItemRepository invRepo;
     private final InventoryItemDetailRepository invDtlRepo;
-    private final InventoryItemTransferRepository invTransRepo;
     private final UomRepository uomRepo;
     private final StatusItemRepository stsRepo;
     private final EnumerationRepository enumRepo;
+    private final InventoryTransferRepository transRepo;
 
     // Service
     @Autowired
     private final ProductService proSer;
     private final FacilityService fcSer;
 
-    public InventoryItemServiceImpl(FacilityRepository fcRepo, ProductRepository proRepo, InventoryItemRepository invRepo, InventoryItemDetailRepository invDtlRepo, InventoryItemTransferRepository invTransRepo, UomRepository uomRepo, StatusItemRepository stsRepo, EnumerationRepository enumRepo, ProductService proSer, FacilityService fcSer) {
+    public InventoryItemServiceImpl(FacilityRepository fcRepo, ProductRepository proRepo, InventoryItemRepository invRepo,
+                                    InventoryItemDetailRepository invDtlRepo, InventoryTransferRepository invTransRepo,
+                                    UomRepository uomRepo, StatusItemRepository stsRepo, EnumerationRepository enumRepo,
+                                    ProductService proSer, FacilityService fcSer, InventoryTransferRepository transRepo) {
         this.fcRepo = fcRepo;
         this.proRepo = proRepo;
         this.invRepo = invRepo;
         this.invDtlRepo = invDtlRepo;
-        this.invTransRepo = invTransRepo;
         this.uomRepo = uomRepo;
         this.stsRepo = stsRepo;
         this.enumRepo = enumRepo;
         this.proSer = proSer;
         this.fcSer = fcSer;
+        this.transRepo = transRepo;
     }
 
 
@@ -105,7 +108,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         detail.setItem(invRepo.findById(item.getId()).orElseThrow(() -> new DataNotFoundException("Inventory Item does exists Id : " + item.getId())));
         detail.setTransactionTypeId(enumRepo.findById(transactionTypeId).orElseThrow(() -> new DataNotFoundException("Enumeration does not exists : " + transactionTypeId)));
         if (inventoryTransferId != null) {
-            detail.setTransfer(invTransRepo.findById(inventoryTransferId).orElseThrow(() -> new DataNotFoundException("Transfer does not exists : " + inventoryTransferId)));
+            detail.setTransfer(transRepo.findById(inventoryTransferId).orElseThrow(() -> new DataNotFoundException("Transfer does not exists : " + inventoryTransferId)));
         }
         detail.setQuantity(convertStoredQuantity(quantity, transactionUomId));
         detail.setTransactionUomId(transactionUomId);
@@ -173,5 +176,40 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public Page<InventoryItemResponse> findAllInventory(Pageable pageable) {
         Page<InventoryItem> items = invRepo.findAll(pageable);
         return items.map(this::responseMap);
+    }
+
+    @Override
+    public InventoryItemResponse transferInventoryItem(Long inventoryItemId, BigDecimal transferQuantity, String transactionUomId,
+                                                       String transferReasonId, Long facilityId, String comments) {
+
+        InventoryItem fromInventoryItem = invRepo.findById(inventoryItemId)
+                .orElseThrow(()-> new DataNotFoundException("Could not find the Inventory Item Id"));
+        BigDecimal quantity = convertStoredQuantity(transferQuantity, transactionUomId);
+      /*  if (fromInventoryItem.getQuantity() <= quantity) {
+
+        }*/
+        StatusItem statusItem = stsRepo.findById("INV_TRN_TRANSFERRED")
+                .orElseThrow(()-> new DataNotFoundException("Could not find the Status Item"));
+        Enumeration transferReason = enumRepo.findById(transferReasonId)
+                .orElseThrow(()-> new DataNotFoundException("Could not find the Enumeration"));
+        Facility facility = fcRepo.findById(facilityId)
+                .orElseThrow(()-> new DataNotFoundException("Could not find the Facility Id"));
+        Uom uom = uomRepo.findById(transactionUomId)
+                .orElseThrow(()-> new DataNotFoundException("Could not find the Uom"));
+
+        InventoryTransfer newInventoryTransfer = new InventoryTransfer();
+
+        newInventoryTransfer.setInventoryItem(fromInventoryItem);
+        newInventoryTransfer.setTransferQuantity(convertStoredQuantity(transferQuantity, transactionUomId));
+        newInventoryTransfer.setTransferReason(transferReason);
+        newInventoryTransfer.setStatus(statusItem);
+        newInventoryTransfer.setFacility(facility);
+        newInventoryTransfer.setUom(uom);
+        newInventoryTransfer.setComments(comments);
+
+        transRepo.save(newInventoryTransfer);
+
+
+        return null;
     }
 }
