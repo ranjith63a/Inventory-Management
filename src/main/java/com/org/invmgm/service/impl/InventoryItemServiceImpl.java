@@ -2,6 +2,7 @@ package com.org.invmgm.service.impl;
 
 import com.org.invmgm.dto.*;
 import com.org.invmgm.exception.DataNotFoundException;
+import com.org.invmgm.exception.InsufficientQuantityException;
 import com.org.invmgm.model.*;
 import com.org.invmgm.repository.*;
 import com.org.invmgm.service.FacilityService;
@@ -18,7 +19,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -72,7 +72,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         newItem.setQuantity(convertStoredQuantity(request.getQuantity(), request.getTransactionUomId()));
         newItem.setLotId(request.getLotId());
         newItem.setComments(request.getComments());
-        newItem.setLotId(request.getLotId());
         newItem.setInventoryItemType((Enumeration) validateRelationship.get("inventoryType"));
         newItem.setVendorId(request.getVendorId());
         newItem.setReceivedOn(LocalDateTime.now());
@@ -184,32 +183,64 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         InventoryItem fromInventoryItem = invRepo.findById(inventoryItemId)
                 .orElseThrow(()-> new DataNotFoundException("Could not find the Inventory Item Id"));
-        BigDecimal quantity = convertStoredQuantity(transferQuantity, transactionUomId);
-      /*  if (fromInventoryItem.getQuantity() <= quantity) {
 
-        }*/
-        StatusItem statusItem = stsRepo.findById("INV_TRN_TRANSFERRED")
-                .orElseThrow(()-> new DataNotFoundException("Could not find the Status Item"));
-        Enumeration transferReason = enumRepo.findById(transferReasonId)
-                .orElseThrow(()-> new DataNotFoundException("Could not find the Enumeration"));
-        Facility facility = fcRepo.findById(facilityId)
-                .orElseThrow(()-> new DataNotFoundException("Could not find the Facility Id"));
-        Uom uom = uomRepo.findById(transactionUomId)
-                .orElseThrow(()-> new DataNotFoundException("Could not find the Uom"));
+        BigDecimal quantity = convertStoredQuantity(transferQuantity, transactionUomId);
 
         InventoryTransfer newInventoryTransfer = new InventoryTransfer();
 
-        newInventoryTransfer.setInventoryItem(fromInventoryItem);
-        newInventoryTransfer.setTransferQuantity(convertStoredQuantity(transferQuantity, transactionUomId));
+        if (fromInventoryItem.getQuantity().compareTo(quantity) < 0) {
+            throw new InsufficientQuantityException("Transfer quantity exceeds available stock");
+        }
+        Facility facility = fcRepo.findById(facilityId)
+                .orElseThrow(() -> new DataNotFoundException("Could not find the Facility Id"));
+        StatusItem statusItem = stsRepo.findById("INV_TRN_TRANSFERRED")
+                .orElseThrow(() -> new DataNotFoundException("Could not find the Status Item"));
+        Enumeration transferReason = enumRepo.findById(transferReasonId)
+                .orElseThrow(() -> new DataNotFoundException("Could not find the Enumeration"));
+        Uom uom = uomRepo.findById(transactionUomId)
+                .orElseThrow(() -> new DataNotFoundException("Could not find the Uom"));
+
+
+        newInventoryTransfer.setTransferQuantity(quantity);
         newInventoryTransfer.setTransferReason(transferReason);
         newInventoryTransfer.setStatus(statusItem);
         newInventoryTransfer.setFacility(facility);
         newInventoryTransfer.setUom(uom);
         newInventoryTransfer.setComments(comments);
 
+        InventoryItem result = new InventoryItem();
+
+        if (fromInventoryItem.getQuantity().compareTo(quantity) > 0) {
+            Map<String, Object> validateRelationship = validateInventoryItem(facilityId, fromInventoryItem.getProduct().getId(),
+                    transactionUomId, "INV_PENDING", "TRANSFERRED");
+            InventoryItem newItem = new InventoryItem();
+            newItem.setProduct((Product) validateRelationship.get("product"));
+            newItem.setFacility((Facility) validateRelationship.get("facility"));
+            newItem.setUom((Uom) validateRelationship.get("uom"));
+            newItem.setStatusItem((StatusItem) validateRelationship.get("statusItem"));
+            newItem.setQuantity(quantity);
+            newItem.setLotId(fromInventoryItem.getLotId());
+
+            String mergedComments = (fromInventoryItem.getComments() != null ? fromInventoryItem.getComments() : "")
+                    + (comments != null ? comments : "");
+
+            newItem.setComments(mergedComments);
+            newItem.setInventoryItemType((Enumeration) validateRelationship.get("inventoryType"));
+            newItem.setVendorId(fromInventoryItem.getVendorId());
+            newItem.setTransferredOn(LocalDateTime.now());
+            result = invRepo.save(newItem);
+
+            fromInventoryItem.setQuantity(fromInventoryItem.getQuantity().subtract(quantity));
+            invRepo.save(fromInventoryItem);
+
+        } else if (fromInventoryItem.getQuantity().compareTo(quantity) == 0) {
+            fromInventoryItem.setFacility(facility);
+            result = invRepo.save(fromInventoryItem);
+        }
+
+        newInventoryTransfer.setInventoryItem(result);
         transRepo.save(newInventoryTransfer);
 
-
-        return null;
+        return responseMap(result);
     }
 }

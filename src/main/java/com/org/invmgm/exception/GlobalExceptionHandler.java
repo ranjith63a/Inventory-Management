@@ -85,4 +85,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", "Access Denied", "message", ex.getMessage()));
     }
+
+    @ExceptionHandler(InsufficientQuantityException.class)
+    public ResponseEntity<?> insufficientQuantityException(InsufficientQuantityException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(Map.of(
+                        "error", "Insufficient Quantity",
+                        "message", ex.getMessage()
+                ));
+    }
 }

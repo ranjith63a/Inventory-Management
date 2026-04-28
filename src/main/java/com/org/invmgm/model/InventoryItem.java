@@ -1,13 +1,13 @@
 package com.org.invmgm.model;
 
 import com.org.invmgm.common.entity.BaseEntity;
-import com.org.invmgm.dto.InventoryItemCreateRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
