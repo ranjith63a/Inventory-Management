@@ -1,27 +1,34 @@
 package com.org.invmgm.controller;
 
-import com.org.invmgm.dto.InventoryItemCreateRequest;
-import com.org.invmgm.dto.InventoryItemResponse;
-import com.org.invmgm.dto.InventoryItemUpdateRequest;
-import com.org.invmgm.dto.InventoryTransferRequest;
+import com.org.invmgm.dto.*;
+import com.org.invmgm.service.impl.FileServiceImpl;
 import com.org.invmgm.service.impl.InventoryItemServiceImpl;
 import jakarta.validation.Valid;
-import lombok.extern.java.Log;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/v1/inventory")
 public class InventoryItemController {
 
     private final InventoryItemServiceImpl service;
+    private final FileServiceImpl fileService;
 
-    public InventoryItemController(InventoryItemServiceImpl service) {
+    public InventoryItemController(InventoryItemServiceImpl service, FileServiceImpl fileService) {
         this.service = service;
+        this.fileService = fileService;
     }
 
     @PostMapping("/receiveInventory")
@@ -37,7 +44,7 @@ public class InventoryItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<InventoryItemResponse>> findAllInventory(Pageable pageable) {
+    public ResponseEntity<Page<InventoryItemResponse>> findAllInventory(@ParameterObject Pageable pageable) {
         Page<InventoryItemResponse> response = service.findAllInventory(pageable);
         return ResponseEntity.ok(response);
     }
@@ -56,5 +63,23 @@ public class InventoryItemController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) throws IOException {
+
+        return ResponseEntity.ok(fileService.upload(file));
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Resource> download(@PathVariable Long id) throws IOException {
+
+        CustomFileResource file = fileService.download(id);
+
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + file.getFileName() + "\"")
+                .body(file.getResource());
     }
 }

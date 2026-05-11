@@ -5,6 +5,7 @@ import com.org.invmgm.dto.UserLoginResponse;
 import com.org.invmgm.service.impl.UserLoginServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -43,7 +44,7 @@ public class UserLoginController {
     }
 
     @GetMapping("/allUser")
-    ResponseEntity<Page<UserLoginResponse>> findAllUser(Pageable pageable) {
+    ResponseEntity<Page<UserLoginResponse>> findAllUser(@ParameterObject Pageable pageable) {
         Page<UserLoginResponse> response = useSer.findAllUser(pageable);
         return ResponseEntity.ok(response);
     }

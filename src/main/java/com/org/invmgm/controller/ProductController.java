@@ -4,6 +4,7 @@ import com.org.invmgm.dto.ProductRequest;
 import com.org.invmgm.dto.ProductResponse;
 import com.org.invmgm.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> fidAll(@RequestParam(required = false) Long id, @RequestParam(required = false) String productName, Pageable pageable) {
+    public ResponseEntity<Page<ProductResponse>> fidAll(@RequestParam(required = false) Long id, @RequestParam(required = false) String productName,
+                                                        @ParameterObject Pageable pageable) {
         Page<ProductResponse> productResponse = proSer.findAllProduct(id, productName, pageable);
         return ResponseEntity.ok(productResponse);
     }
