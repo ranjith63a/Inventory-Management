@@ -4,6 +4,7 @@ import com.org.invmgm.dto.FacilityRequest;
 import com.org.invmgm.dto.FacilityResponse;
 import com.org.invmgm.service.impl.FacilityServiceImpl;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,8 @@ public class FacilityController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<FacilityResponse>> getListOfFacility(@RequestParam(required = false) Long id, @RequestParam(required = false) String facilityName, Pageable pageable) {
+    public ResponseEntity<Page<FacilityResponse>> getListOfFacility(@RequestParam(required = false) Long id, @RequestParam(required = false) String facilityName,
+                                                                    @ParameterObject Pageable pageable) {
         Page<FacilityResponse> response = facilityService.getListOfFacility(id, facilityName, pageable);
         return ResponseEntity.ok(response);
     }

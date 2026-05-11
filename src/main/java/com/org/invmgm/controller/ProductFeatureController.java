@@ -4,6 +4,7 @@ import com.org.invmgm.dto.ProductFeatureRequest;
 import com.org.invmgm.dto.ProductFeatureResponse;
 import com.org.invmgm.service.impl.ProductFeatureServiceImpl;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class ProductFeatureController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<ProductFeatureResponse>> findAllProductFeature(
-            @RequestParam(required = false) String productFeatureCode, Pageable pageable) {
+            @RequestParam(required = false) String productFeatureCode, @ParameterObject Pageable pageable) {
 
         return ResponseEntity.ok(service.findAllProductFeature(productFeatureCode, pageable));
     }

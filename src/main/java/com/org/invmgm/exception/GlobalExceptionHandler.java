@@ -2,6 +2,7 @@ package com.org.invmgm.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -93,5 +94,21 @@ public class GlobalExceptionHandler {
                         "error", "Insufficient Quantity",
                         "message", ex.getMessage()
                 ));
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<ApiErrorResponse> invalidFileTypeException(InvalidFileTypeException ex, HttpServletRequest request) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),ex.getMessage(),HttpStatus.BAD_REQUEST.getReasonPhrase(), LocalDateTime.now(),request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> fileNotFoundException(FileNotFoundException ex, HttpServletRequest request) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.NOT_FOUND.value(),ex.getMessage(),HttpStatus.NOT_FOUND.getReasonPhrase(), LocalDateTime.now(),request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 }
